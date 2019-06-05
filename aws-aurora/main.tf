@@ -26,7 +26,7 @@ resource "aws_security_group" "rds" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = ["name", "description"]
+    ignore_changes        = [name, description]
   }
 
   tags = "${local.tags}"
@@ -84,7 +84,7 @@ resource "aws_rds_cluster_parameter_group" "db" {
   parameter = ["${var.rds_cluster_parameters}"]
 
   lifecycle {
-    ignore_changes = ["family"]
+    ignore_changes = [family]
   }
 
   tags = "${local.tags}"
@@ -97,7 +97,7 @@ resource "aws_db_parameter_group" "db" {
   parameter = ["${var.db_parameters}"]
 
   lifecycle {
-    ignore_changes = ["family"]
+    ignore_changes = [family]
   }
 
   tags = "${local.tags}"
