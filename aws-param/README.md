@@ -19,7 +19,7 @@ module "secret" {
 
 # yeah don't really do this
 output "secret" {
-  value = "${module.secret.value}"
+  value = module.secret.value
 }
 ```
 

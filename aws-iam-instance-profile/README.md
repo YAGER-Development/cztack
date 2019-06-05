@@ -17,13 +17,13 @@ module "profile" {
 }
 
 resource "aws_iam_role_policy_attachment" {
-  role       = "${module.profile.role_arn}"
+  role       = module.profile.role_arn
   policy_arn = "arn:aws:iam::aws:policy/AnyPolicyARNGoesHere"
 }
 
 resource "aws_instance" "instance" {
   # ...
-  iam_instance_profile = "${module.profile.profile_arn}"
+  iam_instance_profile = module.profile.profile_arn
   # ...
 }
 ```

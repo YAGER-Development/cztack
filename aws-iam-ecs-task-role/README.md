@@ -16,7 +16,7 @@ module "ecs-role" {
 }
 
 output "ecs-role-arn" {
-  value = "${module.ecs-role.arn}"
+  value = module.ecs-role.arn
 }
 ```
 

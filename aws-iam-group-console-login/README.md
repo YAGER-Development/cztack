@@ -13,7 +13,7 @@ module "group" {
 }
 
 output "group_name" {
-  value = "${module.group.group_name}"
+  value = module.group.group_name
 }
 ```
 

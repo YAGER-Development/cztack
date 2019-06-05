@@ -15,11 +15,11 @@ module "group" {
 }
 
 output "group_arn" {
-  value = "${module.group.group_arn}"
+  value = module.group.group_arn
 }
 
 output "group_name" {
-  value = "${module.group.group_name}"
+  value = module.group.group_name
 }
 ```
 

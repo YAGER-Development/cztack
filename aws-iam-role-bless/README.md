@@ -14,8 +14,8 @@ module "aws-iam-role-bless" {
 }
 
 output "..." {
-  role_name = "${module.aws-iam-role-bless.role_name}"
-  role_arn = "${module.aws-iam-role-bless.role_arn}"
+  role_name = module.aws-iam-role-bless.role_name
+  role_arn = module.aws-iam-role-bless.role_arn
 }
 ```
 

@@ -43,7 +43,7 @@ If you are using [fogg](https://github.com/chanzuckerberg/fogg) this can also be
 ```hcl
 // Configure the terraform-provider-bless
 provider "bless" {
-  region  = "${var.region}"
+  region  = var.region
   profile = "<aws_profile>"
 }
 
@@ -69,7 +69,7 @@ module "blessclient" {
   source_account_id = "..."
 
   bless_lambda_arns = [
-    "${module.bless.lambda_arn}",
+    module.bless.lambda_arn,
   ]
 }
 
@@ -81,7 +81,7 @@ module "bless-users" {
   users           = ["..."]
   group_name      = "bless-users"
   target_accounts = ["..."]
-  target_role     = "${module.blessclient.role_name}"
+  target_role     = module.blessclient.role_name
 }
 ```
 

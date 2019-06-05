@@ -1,24 +1,24 @@
 locals {
   tags = {
-    project   = "${var.project}"
-    env       = "${var.env}"
-    service   = "${var.service}"
-    owner     = "${var.owner}"
+    project   = var.project
+    env       = var.env
+    service   = var.service
+    owner     = var.owner
     managedBy = "terraform"
   }
 
-  domain       = "${replace(data.aws_route53_zone.zone.name, "/\\.$/", "")}"
+  domain       = replace(data.aws_route53_zone.zone.name, "/\\.$/", "")
   website_fqdn = "${var.subdomain}.${local.domain}"
-  bucket_name  = "${local.website_fqdn}"
+  bucket_name  = local.website_fqdn
 
   aliases = [
-    "${local.website_fqdn}",
+    local.website_fqdn,
     "www.${local.website_fqdn}",
   ]
 }
 
 data "aws_route53_zone" "zone" {
-  zone_id = "${var.aws_route53_zone_id}"
+  zone_id = var.aws_route53_zone_id
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {}
@@ -48,9 +48,9 @@ data "aws_iam_policy_document" "bucket_policy" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${local.bucket_name}"
+  bucket = local.bucket_name
   acl    = "private"
-  policy = "${data.aws_iam_policy_document.bucket_policy.json}"
+  policy = data.aws_iam_policy_document.bucket_policy.json
 
   // Cloudfront needs this to compress assets
   // https://stackoverflow.com/questions/35590622/cloudfront-with-s3-website-as-origin-is-not-serving-gzipped-files
@@ -69,22 +69,22 @@ resource "aws_s3_bucket" "bucket" {
     }
   }
 
-  tags = "${local.tags}"
+  tags = local.tags
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = "${aws_s3_bucket.bucket.bucket_domain_name}"
-    origin_id   = "${local.website_fqdn}"
+    domain_name = aws_s3_bucket.bucket.bucket_domain_name
+    origin_id   = local.website_fqdn
 
     s3_origin_config {
-      origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path}"
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
     }
   }
 
   enabled             = true
   is_ipv6_enabled     = true
-  default_root_object = "${var.index_document_path}"
+  default_root_object = var.index_document_path
 
   aliases = concat(var.aliases, local.aliases)
 
@@ -92,7 +92,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     allowed_methods = ["GET", "HEAD"]
     cached_methods  = ["GET", "HEAD"]
 
-    target_origin_id = "${local.website_fqdn}"
+    target_origin_id = local.website_fqdn
 
     forwarded_values {
       query_string = false
@@ -115,12 +115,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  price_class = "${var.cloudfront_price_class}"
+  price_class = var.cloudfront_price_class
 
   viewer_certificate {
-    acm_certificate_arn      = "${var.aws_acm_cert_arn}"
+    acm_certificate_arn      = var.aws_acm_cert_arn
     ssl_support_method       = "sni-only"
-    minimum_protocol_version = "${var.minimum_tls_version}"
+    minimum_protocol_version = var.minimum_tls_version
   }
 
   # This is error handling logic for single page applications
@@ -142,57 +142,57 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     response_page_path = "/${var.index_document_path}"
   }
 
-  tags = "${local.tags}"
+  tags = local.tags
 }
 
 # for ipv4
 resource "aws_route53_record" "ipv4-record" {
-  zone_id = "${var.aws_route53_zone_id}"
-  name    = "${local.website_fqdn}"
+  zone_id = var.aws_route53_zone_id
+  name    = local.website_fqdn
   type    = "A"
 
   alias {
-    name                   = "${aws_cloudfront_distribution.s3_distribution.domain_name}"
-    zone_id                = "${aws_cloudfront_distribution.s3_distribution.hosted_zone_id}"
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = true
   }
 }
 
 # for ipv6
 resource "aws_route53_record" "ipv6-record" {
-  zone_id = "${var.aws_route53_zone_id}"
-  name    = "${local.website_fqdn}"
+  zone_id = var.aws_route53_zone_id
+  name    = local.website_fqdn
   type    = "AAAA"
 
   alias {
-    name                   = "${aws_cloudfront_distribution.s3_distribution.domain_name}"
-    zone_id                = "${aws_cloudfront_distribution.s3_distribution.hosted_zone_id}"
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = true
   }
 }
 
 # for ipv4
 resource "aws_route53_record" "www-ipv4-record" {
-  zone_id = "${var.aws_route53_zone_id}"
+  zone_id = var.aws_route53_zone_id
   name    = "www.${local.website_fqdn}"
   type    = "A"
 
   alias {
-    name                   = "${aws_cloudfront_distribution.s3_distribution.domain_name}"
-    zone_id                = "${aws_cloudfront_distribution.s3_distribution.hosted_zone_id}"
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = true
   }
 }
 
 # for ipv6
 resource "aws_route53_record" "www-ipv6-record" {
-  zone_id = "${var.aws_route53_zone_id}"
+  zone_id = var.aws_route53_zone_id
   name    = "www.${local.website_fqdn}"
   type    = "AAAA"
 
   alias {
-    name                   = "${aws_cloudfront_distribution.s3_distribution.domain_name}"
-    zone_id                = "${aws_cloudfront_distribution.s3_distribution.hosted_zone_id}"
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = true
   }
 }

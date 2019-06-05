@@ -17,7 +17,7 @@ module "cert" {
   aws_route53_zone_id = "..."
   
   # a map of alternative : route53_zone_id 
-  cert_subject_alternative_names = "${map(..)}"
+  cert_subject_alternative_names = map(..)
 
 
   # variables for tags
