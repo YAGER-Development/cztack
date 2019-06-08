@@ -23,7 +23,7 @@ module "aurora" {
   port                = 5432
   instance_class      = "${var.instance_class}"
   instance_count      = "${var.instance_count}"
-  backtrack_window    = 0                            # not supported yet
+  backtrack_window    = 0 # not supported yet
   skip_final_snapshot = "${var.skip_final_snapshot}"
   kms_key_id          = "${var.kms_key_id}"
   apply_immediately   = "${var.apply_immediately}"
